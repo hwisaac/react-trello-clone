@@ -1,46 +1,90 @@
-# Getting Started with Create React App
+# Trello clone
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 0.1 Recoil 을 이용해서 단위 환산 앱 만들기
 
-## Available Scripts
+1. 입력 레이아웃을 만든다.
 
-In the project directory, you can run:
+```javascript
+// App.tsx;
 
-### `npm start`
+function App() {
+  return (
+    <div>
+      <input type='number' placeholder='Minutes' />
+      <input type='number' placeholder='Hours' />
+    </div>
+  );
+}
+export default App;
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+2. minutes 와 hour 에 대한 atom 을 만들어 내보내준다.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+```javascript
+// atoms.tsx
+import { atom } from "recoil";
 
-### `npm test`
+export const minuteState = atom({
+  key: "minutes",
+  default: 0,
+});
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+3. useRecoilState 를 이용해서 atom 을 받아온다.
+4. input 의 value 와 value 를 세팅하는 함수를 만들어서 연결해준다.
 
-### `npm run build`
+```javascript
+//App.tsx
+import React from "react";
+import { useRecoilState } from "recoil";
+import { minuteState } from "./atoms";
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+const [minutes, setMinutes] = useRecoilState(minuteState)
+const onMinutesChange = (event) => {
+  setMinutes(+event.currentTarget.value); // + 를 붙여서 string 을 number 로 바꿔줌.
+}
+return (
+  <div>
+    <input value={minutes} onChange={} type="number" placeholder="minutes">
+    <input type="number" placeholder="hours">
+  </div>
+)
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+5. **selector** 를 이용하면 get함수로 minute atom 의 state를 가져와서 수정하고 output 을 내보낼 수 있다.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```javascript
+// atoms.tsx
+import { selector } from "recoil";
 
-### `npm run eject`
+export const hourSelector = selector({
+  key: "hours",
+  get: ({ get }) => {
+    const minutes = get(minuteState); // minuteState atom 을 가져오는 get
+    return minutes / 60;
+  },
+});
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+6. 다시 App.tsx 로 돌아와서 useRecoilValue로 위의 output 을 받아보자
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```javascript
+// App.tsx
+import React from "react";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { minuteState } from "./atoms";
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+const [minutes, setMinutes] = useRecoilState(minuteState)
+const hours = useRecoilValue(hourSelector) // value 만 가져오면 되니까 useRecoilValue
+const onMinutesChange = (event) => {
+  setMinutes(+event.currentTarget.value);
+}
+return (
+  <div>
+    <input value={minutes} onChange={} type="number" placeholder="minutes">
+    <input value={hours} type="number" placeholder="hours"> // hours값을 입력해준다.
+  </div>
+)
+```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+- 그런데 여기까지 하면 hour 인풋에는 입력을 할 수 없다 onChange 이벤트가 없기 때문이다.
