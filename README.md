@@ -88,3 +88,8 @@ return (
 ```
 
 - 그런데 여기까지 하면 hour 인풋에는 입력을 할 수 없다 onChange 이벤트가 없기 때문이다.
+
+## selector 의 'set' property
+
+- get 은 데이터를 가져올 수 있었다.
+- set 은 원하는 state 데이터를 수정할 수 있게 해준다.
