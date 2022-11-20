@@ -201,6 +201,8 @@ function App() {
 
 ## 7.3 Drag and Drop part Two
 
+#### DroppableProvided
+
 - Droppable 의 children 함수에 전달되는 인자는 provided라는 객체이다.
 
 ```javascript
@@ -211,7 +213,8 @@ interface DroppableProvided {
 }
 ```
 
-- 이 객체에는 droppableProps 가 있는데 ul 이 필요로 하는 props 가 들어있다.
+- innerRef 는 ul 의 ref 라는 prop 에 전달해줄 데이터다
+- 이 provided 객체에는 droppableProps 가 있는데 ul 이 필요로 하는 props 가 들어있다.
 
 ```javascript
 <Droppable droppableId='one'>
@@ -228,4 +231,67 @@ interface DroppableProvided {
     </ul>
   )}
 </Droppable>
+
+// 웹사이트에서 ul 의 모습. magic 이 one 과 1을 전달해줌
+<ul data-rbd-droppable-id="one" data-rbd-droppable-context-id="1">
+```
+
+- 이 provided 객체 안에는 provided.placeholder 가 있는데 드래그로 자리에서 빼내도 그 빈자리에 채워진 것처럼 만들어준다.
+
+```javascript
+<Droppable droppableId='one'>
+  {(magic) => (
+    <Board ref={magic.innerRef} {...magic.droppableProps}>
+      {toDos.map((toDo, index) => (
+        <Draggable draggableId={toDo} index={index}>
+          {(magic) => (
+            <Card
+              ref={magic.innerRef}
+              {...magic.dragHandleProps}
+              {...magic.draggableProps}>
+              {toDo}
+            </Card>
+          )}
+        </Draggable>
+      ))}
+      {magic.placeholder} // 드래그 해도 사이즈가 축소되지 않음.
+    </Board>
+  )}
+</Droppable>
+```
+
+#### DraggableProvided
+
+```javascript
+export interface DraggableProvided {
+  innerRef: (element?: HTMLElement | null) => any;
+  draggableProps: DraggableProvidedDraggableProps;
+  dragHandleProps?: DraggableProvidedDragHandleProps | undefined;
+}
+```
+
+- 드래그 되길 바라는 요소의 prop에는 `draggableProps`를 추가 한다.(요소가 드래그에 딸려서 움직인다)
+- `dragHandleProps` 는 잡을 부위(손잡이?) 요소에 prop으로 추가해주면 된다.
+
+- li를 어떤 위치에서도 드래그해서 옮기도록 하고 싶으면 li 에 `draggableProps` 와 `dragHandleProps` 를 함께 넣어준다.
+
+```javascript
+<Draggable draggableId='first' index={0}>
+  {(magic) => (
+    <li ref={magic.innerRef}
+        {...magic.draggableProps}
+        {...magic.dragHandleProps}>
+      One
+    </li>
+  )}
+</Draggable>
+
+<Draggable draggableId='first' index={0}>
+  {(magic) => (
+    <li ref={magic.innerRef} {...magic.draggableProps}>
+      <span {...magic.dragHandleProps}>🔥</span>  //불꽃이모지만 잡을수 있다 One 은 잡을수없음
+      One
+    </li>
+  )}
+</Draggable>
 ```
