@@ -295,3 +295,65 @@ export interface DraggableProvided {
   )}
 </Draggable>
 ```
+
+## 7.5 Reordering
+
+- `onDragEnd` 는 어떤 일이 일어났는지에 대한 정보로 많은 `argument`를 준다.
+  - `draggableId` : 방금 드래그 했던 것
+  - `destination` : 드래그를 놓은 곳(Drappable). 없을 수도 있다 엉뚱한 데에 놓으면
+  - `source` : 드래그가 출발한 곳(Drappable)
+- **주의! Draggable 의 `key` 는 `draggableId` 는 같아야 한다!**
+
+```javascript
+const onDrageEnd = (args) => {
+  console.log(args);
+  /*
+    {
+    draggableId: 'b' //현재 드래그 했던 것
+    type: 'DEFAULT'
+    source: {...}
+    combine:null
+    destination: {droppableId: 'one' , index: 0} // 드래그를 놓은 곳 drappable
+    mode: "FLUID"
+    reason: "DROP"
+    source: {index: 1, dorppableId: 'one'} // 드래그가 출발한 drappable
+    }
+  */
+};
+```
+
+- 재정렬 하기
+
+```javascript
+const onDrageEnd = (args) => {
+  console.log(args);
+  /*
+    {
+    draggableId: 'b' //현재 드래그 했던 것
+    type: 'DEFAULT'
+    source: {...}
+    combine:null
+    destination: {droppableId: 'one' , index: 0} // 드래그를 놓은 곳 drappable
+    mode: "FLUID"
+    reason: "DROP"
+    source: {index: 1, dorppableId: 'one'} // 드래그가 출발한 drappable
+    }
+  */
+};
+```
+
+#### 문제 발생
+
+- 재배치 할 때마다 모든 cards를 다시 랜더링 하면서 글씨가 깜빡이는 현상이 나타난다.
+
+#### 문제 해결 : Optimization
+
+원인
+
+- 리액트에서 컴포넌트의 state가 변하면 해당 컴포넌트의 모든 children 을 다시 랜더링이 된다.
+- 그런데 하나만 움직여도 모든 리스트(children)가 반복적으로 랜더링이 되면서 리소스를 잡아먹는다
+- parent 컴포넌트가 커질수록 수많은 children 이 랜더링이 되면 이와 같은 일이 생길 가능성이 크다.
+
+해결방법: **react memo** 를 사용한다
+
+- react memo 는 prop 이 변하지 않는다면 컴포넌트를 랜더링 하지 않게 할 수 있다. -`export default DraggabbleCard` 에서 `export default React.memo(DragabbleCard);` 로 변경하면 DraggableCard의 prop 이 변경되지 않는 한 다시 랜더링 하지 않게 된다.
