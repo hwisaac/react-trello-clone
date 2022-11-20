@@ -357,3 +357,73 @@ const onDrageEnd = (args) => {
 해결방법: **react memo** 를 사용한다
 
 - react memo 는 prop 이 변하지 않는다면 컴포넌트를 랜더링 하지 않게 할 수 있다. -`export default DraggabbleCard` 에서 `export default React.memo(DragabbleCard);` 로 변경하면 DraggableCard의 prop 이 변경되지 않는 한 다시 랜더링 하지 않게 된다.
+
+## Droppable 의 snapshot
+
+- 떠나는 board 와 도착하는 board에 대한 정보를 이용하고 싶을 때 Droppable 의 snapshot 을 이용한다.
+- provided 말고도 Droppable 의 children 함수에 전달하는 두번째 인자로 snapshot 이 있다.
+
+```javascript
+export interface DroppableStateSnapshot {
+  isDraggingOver: boolean;
+  draggingOverWith?: DraggableId | undefined;
+  draggingFromThisWith?: DraggableId | undefined;
+  isUsingPlacehlder: boolean;
+}
+```
+
+- `isDraggingOver` 를 통해 board 위로 드래그로 들어오는지 알려줄수 있다.
+- `draggingFromThisWith` 해당 board로부터 드래그를 시작했는지도 알 수 있다.
+
+```javascript
+//magic 이 privded 고 info 가 snapshot 이다.
+{
+  (magic, info) => (
+    <Area
+      isDraggingOver={info.isDraggingOver}
+      isDraggingFromThis={Boolean(info.draggingFromThisWith)}
+      ref={magic.innerRef}
+      {...magic.droppableProps}>
+      {toDos.map((toDo, index) => (
+        <DragabbleCard key={toDo} index={index} toDo={toDo} />
+      ))}
+      {magic.placeholder}
+    </Area>
+  );
+}
+```
+
+## Draggable의 snapshot
+
+- 드래그 하는 item (li) 에 대해 스타일을 변경 하고 싶다면? Draggable 의 `snapshot` 을 이용하면 된다
+
+```javascript
+export interface DraggableStateSnapshot {
+  isDragging: boolean;
+  isDropAnimating: boolean;
+  dropAnimation?: DropAnimation | undefined;
+  draggingOver?: DroppableId | undefined;
+  // the id of a draggable that you are combining with
+  combineWith?: DraggableId | undefined;
+  // a combine target is being dragged over by
+  combineTargetFor?: DraggableId | undefined;
+  // What type of movement is being done: 'FLUID' or "SNAP'
+  mode?: MovementMode | undefined;
+}
+```
+
+- `isDragging` 은 드래그 하는 도중에 true
+
+```javascript
+// DraggableCard.tsx
+// 예제. Card를 드래그 하는 동안 isDragging 이 true 이면 특정 스타일을 적용한다.
+const Card =
+  styled.div <
+  { isDragging: boolean } >
+  `
+  background-color: ${(props) =>
+    props.isDragging ? "tomato" : props.theme.cardColor};
+  box-shadow: ${(props) =>
+    props.isDragging ? "0px 2px 5px rgba(0, 0, 0, 0.05)" : "none"};
+`;
+```
