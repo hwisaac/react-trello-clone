@@ -427,3 +427,46 @@ const Card =
     props.isDragging ? "0px 2px 5px rgba(0, 0, 0, 0.05)" : "none"};
 `;
 ```
+
+## 7.13 Refs
+
+- react코드를 이용해 'html 요소'를 지정하고 가져와서 수정하는 방법이다.
+
+```javascript
+// 바닐라js 버전
+
+import {} from "";
+const inputRef = useRef < HTMLInputElement > null;
+const onClick = () => {
+  inputRef.current?.focus();
+};
+
+return (
+  // ref={inputRef} 를 사용해 input에 대해 접근한다
+  <Wrapper>
+    <input ref={inputRef} placeholder='grab me' />
+    <button onClick={onClick}>click me </button>
+  </Wrapper>
+);
+```
+
+### beautiful-dnd 의 ref
+
+- beautiful-dnd 가 HTML 요소에 접근할수 있어야 하기 때문에 ref 프롭이 필요한 것이다.
+
+```javascript
+<Droppable droppableId={boardId}>
+  {(magic, info) => (
+    <Area
+      isDraggingOver={info.isDraggingOver}
+      isDraggingFromThis={Boolean(info.draggingFromThisWith)}
+      ref={magic.innerRef} // ref 에 provided.innerRef 가 연결됐다.
+      {...magic.droppableProps}>
+      {toDos.map((toDo, index) => (
+        <DragabbleCard key={toDo} index={index} toDo={toDo} />
+      ))}
+      {magic.placeholder}
+    </Area>
+  )}
+</Droppable>
+```
