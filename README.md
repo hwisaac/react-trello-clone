@@ -1,5 +1,15 @@
 # Trello clone
+> 드래그&드랍 가능한 To Do List 
 
+![react-animations](./trello-clone.gif)
+
+<img src="https://img.shields.io/badge/recoil-0075EB?style=for-the-badge&logo=recoil&logoColor=white">
+<img src="https://img.shields.io/badge/react_beautiful_dnd-0C1754?style=for-the-badge&logo=reactbeautifuldnd&logoColor=white">
+<img src="https://img.shields.io/badge/styledcomponents-DB7093?style=for-the-badge&logo=styledcomponents&logoColor=white">
+<img src="https://img.shields.io/badge/reacthookform-EC5990?style=for-the-badge&logo=reacthookform&logoColor=white">
+
+
+<hr />
 ## 0.1 Recoil 을 이용해서 단위 환산 앱 만들기
 
 1. 입력 레이아웃을 만든다.
@@ -435,7 +445,7 @@ const Card =
 ```javascript
 // 바닐라js 버전
 
-import {} from "";
+import { useRef } from "react";
 const inputRef = useRef < HTMLInputElement > null;
 const onClick = () => {
   inputRef.current?.focus();
